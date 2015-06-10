@@ -10,7 +10,7 @@
 int line2csv(const char *inputShapefile, const char *outputCsv, const char *fields = "none");
 QStringList setFieldNames(OGRLayer *layer, const char *fields);
 QStringList getFieldValues(OGRFeature *feature, QStringList fieldNames);
-QStringList removeCommas(QStringList list);
+QStringList fixCommas(QStringList list);
 QStringList removeSpaces(QStringList list);
 
 int main(int argc, char *argv[])
@@ -188,18 +188,20 @@ QStringList getFieldValues(OGRFeature *feature, QStringList fieldNames)
         fieldValues.append(QString::fromUtf8(feature->GetFieldAsString(fieldIndex)));
     }
 
-    fieldValues = removeCommas(fieldValues);
+    fieldValues = fixCommas(fieldValues);
 
     return fieldValues;
 }
 
-QStringList removeCommas(QStringList list)
+QStringList fixCommas(QStringList list)
 {
     for (int i=0; i<list.size(); i++)
     {
         if(list[i].contains(','))
         {
-            list[i] = list[i].replace(',', ' ');
+            //list[i] = list[i].replace(',', ' ');
+            //list[i].remove(',');
+            list[i] = "\"" + list[i] + "\"";
         }
     }
 
