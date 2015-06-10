@@ -19,12 +19,12 @@ int main(int argc, char *argv[])
 
     OGRRegisterAll();
 
-    const char *path = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/test.shp";
-    const char *out = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/out.csv";
+    const char *path = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/Thalweg/Thalweg.shp";
+    const char *out = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/Thalweg_line2csv.csv";
     const char *fields = "all";
     const char *fields2 = "datenull,testcom";
 
-    line2csv(path, out, fields2);
+    line2csv(path, out, fields);
 
     return a.exec();
 }
@@ -199,8 +199,6 @@ QStringList fixCommas(QStringList list)
     {
         if(list[i].contains(','))
         {
-            //list[i] = list[i].replace(',', ' ');
-            //list[i].remove(',');
             list[i] = "\"" + list[i] + "\"";
         }
     }
