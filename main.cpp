@@ -11,6 +11,7 @@ int line2csv(const char *inputShapefile, const char *outputCsv, const char *fiel
 QStringList setFieldNames(OGRLayer *layer, const char *fields);
 QStringList getFieldValues(OGRFeature *feature, QStringList fieldNames);
 QStringList removeCommas(QStringList list);
+QStringList removeSpaces(QStringList list);
 
 int main(int argc, char *argv[])
 {
@@ -18,11 +19,12 @@ int main(int argc, char *argv[])
 
     OGRRegisterAll();
 
-    const char *path = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/Thalweg/Thalweg.shp";
+    const char *path = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/test.shp";
     const char *out = "C:/KonradWork/01_Projects/NorthArrow/line2csv/data/out.csv";
     const char *fields = "all";
+    const char *fields2 = "datenull,testcom";
 
-    line2csv(path, out, fields);
+    line2csv(path, out, fields2);
 
     return a.exec();
 }
@@ -45,12 +47,10 @@ int line2csv(const char *inputShapefile, const char *outputCsv, const char *fiel
 
     //Get field names to print to csv
     QStringList fieldNames = setFieldNames(layer, fields);
-    qDebug()<<"fieldname size"<<fieldNames.size();
 
     //Get geometry type, number of features
     OGRwkbGeometryType geomType = layer->GetGeomType();
     int nFeatures = layer->GetFeatureCount();
-    qDebug()<<"features "<<nFeatures;
 
     //Reset layer reading position
     layer->ResetReading();
@@ -63,7 +63,7 @@ int line2csv(const char *inputShapefile, const char *outputCsv, const char *fiel
     }
 
     QTextStream stream(&fileCsv);
-    stream<<"x,y";
+    stream<<"FID,x,y";
 
     for (int i=0; i<fieldNames.size(); i++)
     {
@@ -77,30 +77,28 @@ int line2csv(const char *inputShapefile, const char *outputCsv, const char *fiel
     //Line shapefile
     if (wkbFlatten(geomType) == wkbLineString)
     {
-        qDebug()<<"linestring";
         OGRFeature *feature;
         QStringList fieldValues;
+        int nFid;
 
-        qDebug()<<"starting feature loop";
         for (int i=0; i<nFeatures; i++)
         {
             //Get feature geometry as line
             feature = layer->GetNextFeature();
+            nFid = feature->GetFID();
             OGRGeometry *geom;
             geom = feature->GetGeometryRef();
             OGRLineString *line = (OGRLineString*) geom;
-            qDebug()<<"line set";
 
             //Get number of points on line
             int nPoints = line->getNumPoints();
-            qDebug()<<"points "<<nPoints;
 
             fieldValues.clear();
             fieldValues = getFieldValues(feature, fieldNames);
 
             for (int j=0; j<nPoints; j++)
             {
-                stream<<line->getX(j)<<","<<line->getY(j);
+                stream<<nFid<<","<<line->getX(j)<<","<<line->getY(j);
 
                 for (int k=0; k<fieldValues.size(); k++)
                 {
@@ -154,6 +152,7 @@ QStringList setFieldNames(OGRLayer *layer, const char *fields)
     {
         QStringList selectedFields;
         selectedFields = QString::fromUtf8(fields).split(',');
+        selectedFields = removeSpaces(selectedFields);
 
         QString name;
 
@@ -161,7 +160,7 @@ QStringList setFieldNames(OGRLayer *layer, const char *fields)
         {
             for (int j=0; j<nFields; j++)
             {
-                fieldDfn = featDfn->GetFieldDefn(i);
+                fieldDfn = featDfn->GetFieldDefn(j);
                 name = QString::fromUtf8(fieldDfn->GetNameRef());
 
                 if (name == selectedFields[i])
@@ -172,6 +171,8 @@ QStringList setFieldNames(OGRLayer *layer, const char *fields)
             }
         }
     }
+
+    fieldNames.removeDuplicates();
 
     return fieldNames;
 }
@@ -199,6 +200,19 @@ QStringList removeCommas(QStringList list)
         if(list[i].contains(','))
         {
             list[i] = list[i].replace(',', ' ');
+        }
+    }
+
+    return list;
+}
+
+QStringList removeSpaces(QStringList list)
+{
+    for (int i=0; i<list.size(); i++)
+    {
+        if(list[i].contains(' '))
+        {
+            list[i].remove(' ');
         }
     }
 
