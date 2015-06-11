@@ -108,6 +108,9 @@ int line2csv(const char *inputShapefile, const char *outputCsv, const char *fiel
                 stream<<endl;
             }
         }
+
+        OGRFeature::DestroyFeature(feature);
+
     }
 
     //Error if not line
@@ -117,6 +120,7 @@ int line2csv(const char *inputShapefile, const char *outputCsv, const char *fiel
     }
 
     fileCsv.close();
+    OGRDataSource::DestroyDataSource(inShape);
 
     return 0;
 }
