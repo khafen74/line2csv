@@ -17,13 +17,18 @@ TEMPLATE = app
 VERSION = 1.0.1
 DEFINES += EXEVERSION=\\\"$$VERSION\\\" # Makes verion available to c++
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    line2csv_exception.cpp \
+    line2csv.cpp
 
 win32: LIBS += -L$$PWD/../../../../../MinGW/msys/1.0/local/lib/ -llibgdal
 
 INCLUDEPATH += $$PWD/../../../../../MinGW/msys/1.0/local/include
 DEPENDPATH += $$PWD/../../../../../MinGW/msys/1.0/local/include
 
+HEADERS += \
+    line2csv_exception.h \
+    line2csv.h
 
 CONFIG(release, debug|release): BUILD_TYPE = release
 else:CONFIG(debug, debug|release): BUILD_TYPE = debug
